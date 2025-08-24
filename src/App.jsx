@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import Search from "./components/Search.jsx";
 import Loader from "./utils/utils.jsx";
 import MovieCard from "./components/MovieCard.jsx";
+import {useDebounce}  from "react-use";
 
 const API_BASE_URL = 'https://api.themoviedb.org/3';
 const API_KEY_AUTH = import.meta.env.VITE_TMDB_KEY_ACCESS;
@@ -19,12 +20,22 @@ const App = () => {
     const [errorMessage, setErrorMessage] = useState('');
     const [movieList, setMovieList] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
-    const fetchMovies = async () => {
+
+    const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('');
+    useDebounce(() => setDebouncedSearchTerm(searchTerm), 500,[searchTerm]);
+    //debounce search term is to prevent making excessive api calls when user
+    // enter any thing in search field, instead it will check the typing gap of .5 sec
+
+    const fetchMovies = async (query='') => {
         try {
             setIsLoading(true);
+
             setErrorMessage('');
+            const endpoint=query?
+                `${API_BASE_URL}/search/movie?query=${encodeURIComponent(query)}`
+                :`${API_BASE_URL}/discover/movie?sort_by=popularity.desc`;
             const response = await fetch(
-                `${API_BASE_URL}/discover/movie?sort_by=popularity.desc`,
+                endpoint,
                 API_OPTIONS
             );
 
@@ -49,8 +60,8 @@ const App = () => {
     };
 
     useEffect(() => {
-        fetchMovies();
-    }, []);
+        fetchMovies(debouncedSearchTerm);
+    }, [debouncedSearchTerm]);
 
     return (
         <main>
