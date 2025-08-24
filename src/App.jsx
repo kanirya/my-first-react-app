@@ -3,6 +3,7 @@ import Search from "./components/Search.jsx";
 import Loader from "./utils/utils.jsx";
 import MovieCard from "./components/MovieCard.jsx";
 import {useDebounce}  from "react-use";
+import {updateSearchCount} from "./appwrite.js";
 
 const API_BASE_URL = 'https://api.themoviedb.org/3';
 const API_KEY_AUTH = import.meta.env.VITE_TMDB_KEY_ACCESS;
@@ -50,7 +51,9 @@ const App = () => {
                 return;
             }
             setMovieList(data.results||[]);
-            console.log(data); // ✅ You should now see movie results
+if(query&&data.results.length>0){
+    await updateSearchCount(query,data.results[0]);
+}
         } catch (err) {
             console.error(err);
             setErrorMessage("Error fetching movies!");
