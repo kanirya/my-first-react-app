@@ -73,8 +73,9 @@
         }
 
         & ul li img {
-            @apply w-[127px] h-[163px] rounded-lg object-cover -ml-3.5;
+            @apply w-[157px] h-[193px] rounded-lg object-cover -ml-3.5;
         }
+
     }
 
     .search {

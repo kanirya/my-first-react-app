@@ -37,3 +37,17 @@ export  const updateSearchCount= async(searchTerm,movie)=>{
     //2. If it does, update the count
     //3. if no doc found, create a new doc with search term and count as 1
 }
+
+export const getTrendingMovie =async ()=>{
+    try{
+        const result= await dataBase.listDocuments(DATABASE_ID,COLLECTION_ID,[
+            Query.limit(10),
+            Query.orderDesc("count"),
+
+        ])
+        return result.documents;
+    }catch (e) {
+        console.error(e);
+
+    }
+}

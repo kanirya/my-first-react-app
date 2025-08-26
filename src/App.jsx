@@ -3,7 +3,7 @@ import Search from "./components/Search.jsx";
 import Loader from "./utils/utils.jsx";
 import MovieCard from "./components/MovieCard.jsx";
 import {useDebounce}  from "react-use";
-import {updateSearchCount} from "./appwrite.js";
+import {getTrendingMovie, updateSearchCount} from "./appwrite.js";
 
 const API_BASE_URL = 'https://api.themoviedb.org/3';
 const API_KEY_AUTH = import.meta.env.VITE_TMDB_KEY_ACCESS;
@@ -21,6 +21,7 @@ const App = () => {
     const [errorMessage, setErrorMessage] = useState('');
     const [movieList, setMovieList] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
+    const [trendingMovies, setTrendingMovies] = useState([]);
 
     const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('');
     useDebounce(() => setDebouncedSearchTerm(searchTerm), 500,[searchTerm]);
@@ -62,9 +63,24 @@ if(query&&data.results.length>0){
         }
     };
 
+
+    const loadTrendingMovies = async()=>{
+        try {
+            const movies=await getTrendingMovie();
+            setTrendingMovies(movies);
+        }catch(e) {
+            console.error(e);
+        }
+    }
     useEffect(() => {
+
         fetchMovies(debouncedSearchTerm);
+
     }, [debouncedSearchTerm]);
+
+    useEffect(() => {
+        loadTrendingMovies();
+    },[])
 
     return (
         <main>
@@ -76,7 +92,19 @@ if(query&&data.results.length>0){
                 </header>
 
                 <Search searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
-
+                {trendingMovies.length > 0&&(
+                    <section className="trending">
+                        <h2>Trending Movies</h2>
+                        <ul>
+                            {trendingMovies.map((movie,index)=>(
+                                <li key={movie.$id}>
+                                    <p>{index+1}</p>
+                                    <img src={movie.poster_url.length>0?movie.poster_url:'/no-movie.png'} alt={movie.title}/>
+                                </li>
+                            ))}
+                        </ul>
+                    </section>
+                )}
                 <section className="all-movies">
                     <h2>All Movies</h2>
                     {isLoading ? (
