@@ -6,13 +6,14 @@ import {useDebounce}  from "react-use";
 import {getTrendingMovie, updateSearchCount} from "./appwrite.js";
 
 const API_BASE_URL = 'https://api.themoviedb.org/3';
-const API_KEY_AUTH = import.meta.env.VITE_TMDB_KEY_ACCESS;
+const API_KEY_AUTH = import.meta.env.VITE_TMDB_KEY_ACCESS;// now these both have no use here because both are shifted to .net backend
+// the backend of tmdb api is in .net core api
 
 const API_OPTIONS = {
     method: 'GET',
     headers: {
         accept: 'application/json',
-        Authorization: `Bearer ${API_KEY_AUTH}`
+       // Authorization: `Bearer ${API_KEY_AUTH}` this is if you are using tmdb
     }
 };
 
@@ -33,9 +34,9 @@ const App = () => {
             setIsLoading(true);
 
             setErrorMessage('');
-            const endpoint=query?
-                `${API_BASE_URL}/search/movie?query=${encodeURIComponent(query)}`
-                :`${API_BASE_URL}/discover/movie?sort_by=popularity.desc`;
+            const endpoint=query?//f1
+                `https://localhost:7168/api/Movies?query=${encodeURIComponent(query)}`
+                :`https://localhost:7168/api/Movies`;
             const response = await fetch(
                 endpoint,
                 API_OPTIONS
@@ -51,9 +52,10 @@ const App = () => {
                 setMovieList([]);
                 return;
             }
-            setMovieList(data.results||[]);
-if(query&&data.results.length>0){
-    await updateSearchCount(query,data.results[0]);
+            console.log(data)
+            setMovieList(data||[]);
+if(query&&data.length>0){
+    await updateSearchCount(query,data[0]);
 }
         } catch (err) {
             console.error(err);
