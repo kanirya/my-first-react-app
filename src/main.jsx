@@ -6,6 +6,7 @@ import Layout from "./Layout.jsx";
 import LoginPage from "./auth/login/page.jsx";
 import Home from "./App.jsx";
 import Contact from "./pages/testing_page.jsx";
+import Registration from "./auth/register/page.jsx";
 
 
 const router=createBrowserRouter([
@@ -14,9 +15,9 @@ const router=createBrowserRouter([
         element:<Layout/>,
         children:[
             {index: true, element:<Home/>},
-            {path:"login",element:<LoginPage/>},
-            {path:"/contact",element:<Contact/>},
-            {path:"/login",element:<LoginPage/>}
+            {path:"/contact/:id",element:<Contact/>},
+            {path:"/login",element:<LoginPage/>,},
+            { path:"/register",element:<Registration/>}
         ]
 
     }
