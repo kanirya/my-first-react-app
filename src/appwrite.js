@@ -1,4 +1,5 @@
 import {Client, Databases, ID, Query} from "appwrite";
+import axios from 'axios';
 
 const DATABASE_ID=import.meta.env.VITE_APPWRITE_DATABASE_ID;
 const COLLECTION_ID=import.meta.env.VITE_APPWRITE_COLLECTION_ID;
