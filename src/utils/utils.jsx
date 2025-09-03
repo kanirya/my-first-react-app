@@ -1,11 +1,23 @@
 import React from "react";
 
-const Loader = () => {
+
+const Loader = ({ size = 16, color = "bg-purple-500" }) => {
+    const ballStyle = `rounded-full animate-bounce ${color}`;
+
     return (
         <div className="flex items-center justify-center space-x-2 h-20">
-            <span className="w-4 h-4 bg-purple-500 rounded-full animate-bounce [animation-delay:-0.3s]"></span>
-            <span className="w-4 h-4 bg-purple-500 rounded-full animate-bounce [animation-delay:-0.15s]"></span>
-            <span className="w-4 h-4 bg-purple-500 rounded-full animate-bounce"></span>
+      <span
+          className={`${ballStyle}`}
+          style={{ width: size, height: size, animationDelay: "-0.3s" }}
+      ></span>
+            <span
+                className={`${ballStyle}`}
+                style={{ width: size, height: size, animationDelay: "-0.15s" }}
+            ></span>
+            <span
+                className={`${ballStyle}`}
+                style={{ width: size, height: size }}
+            ></span>
         </div>
     );
 };

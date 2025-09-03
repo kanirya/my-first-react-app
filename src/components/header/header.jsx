@@ -18,7 +18,7 @@ export default function Header() {
                     <div className="flex items-center lg:order-2">
                         {user?(<>
                             <span className="text-white mr-4">
-                                    👋 {user.email}
+                                    👋 {user.name}
                                 </span>
                             <button
                                 onClick={logout}
