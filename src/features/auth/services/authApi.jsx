@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import API from "../api/axios";
 import { AuthContext } from "../context/AuthContext";
+import Cookies from "js-cookie";
 
 export function AuthProvider({ children }) {
     const [user, setUser] = useState(null);
@@ -22,6 +23,50 @@ export function AuthProvider({ children }) {
         setLoading(false); // ✅ important
     }, []);
 
+
+    async function register(name, email, password) {
+
+        try{
+            const res=await API.post("/register",{name,email,password});
+            const authData={
+                accessToken: res.data.AccessToken,
+                refreshToken: res.data.RefreshToken,
+                expiresAt: res.data.ExpiresAt,
+                email: res.data.ReturnUserData.Email,
+                name: res.data.ReturnUserData.Name,
+                loginTime: res.data.ReturnUserData.loginDate,
+                uid: res.data.ReturnUserData.Uid,
+                role: res.data.ReturnUserData.Role,
+            }
+            localStorage.setItem("authData", JSON.stringify(authData));
+            setTokens(authData);
+            Cookies.set("refreshToken", JSON.stringify(authData.refreshToken));
+            setUser({
+                email: authData.email,
+                name: authData.name,
+                uid: authData.uid,
+                role: authData.role,
+                loginTime: authData.loginTime,
+            })
+        }catch(err){
+            if (err.response) {
+                console.error("Full error:", err.response.data);
+
+                const msg =
+                    err.response.data.error || // your API's error field
+                    err.response.data.message ||
+                    err.response.data.detail ||
+                    "Invalid credentials";
+    console.log("ERROR is "+msg);
+                throw new Error(msg);
+            } else if (err.request) {
+                throw new Error("No response from server");
+            } else {
+                throw new Error("Request setup error");
+            }
+        }
+
+    }
     async function login(email, password) {
         try {
             const res = await API.post("/login", { email, password });
@@ -38,6 +83,7 @@ export function AuthProvider({ children }) {
             };
 
             localStorage.setItem("authData", JSON.stringify(authData));
+            Cookies.set("refreshToken", JSON.stringify(authData.refreshToken));
             setTokens(authData);
             setUser({
                 email: authData.email,
@@ -48,7 +94,16 @@ export function AuthProvider({ children }) {
             });
         } catch (err) {
             if (err.response) {
-                throw new Error(err.response.data.message || "Invalid credentials");
+                console.error("Full error:", err.response.data);
+
+                const msg =
+                    err.response.data.error ||
+                    err.response.data.message ||
+                    err.response.data.detail ||
+                    "Invalid credentials";
+                console.log("ERROR is "+msg);
+                throw new Error(msg);
+
             } else if (err.request) {
                 throw new Error("No response from server");
             } else {
@@ -99,7 +154,7 @@ export function AuthProvider({ children }) {
     }, [tokens]);
 
     return (
-        <AuthContext.Provider value={{ user, login, logout, tokens, loading }}>
+        <AuthContext.Provider value={{ user, login, register,logout, tokens, loading }}>
             {children}
         </AuthContext.Provider>
     );
