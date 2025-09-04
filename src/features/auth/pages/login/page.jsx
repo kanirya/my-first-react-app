@@ -73,7 +73,7 @@ export default function LoginPage() {
                         )}
                     </div>
 
-                    <div className="relative w-full">
+                    <div className=" relative w-full">
                         <input
                             type={seePass ? "text" : "password"}
                             placeholder="Password"
@@ -84,7 +84,7 @@ export default function LoginPage() {
                         <button
                             type="button"
                             onClick={() => setseePass(!seePass)}
-                            className="absolute inset-y-0 right-3 flex items-center text-gray-500"
+                            className="absolute inset-y-0 right-3 flex items-center top-1/2 text-gray-500"
                         >
                             {seePass ? <EyeOff size={20} /> : <Eye size={20} />}
                         </button>
@@ -96,15 +96,23 @@ export default function LoginPage() {
                     {errors.general && (
                         <p className="text-red-500 text-center text-sm">{errors.general}</p>
                     )}
-                    {isLoading ? <Loader/>:
-                        <button
+                    <button
                         type="submit"
                         disabled={isLoading}
-                        className={`w-full py-2 text-white font-semibold rounded-lg transition duration-300 
-                              bg-indigo-600 hover:bg-indigo-700"`}
+                        className="w-full py-2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-semibold
+                        rounded-xl transition-all duration-200 hover:from-indigo-700 hover:to-purple-700 focus:outline-none focus:ring-4 focus:ring-indigo-200
+                         disabled:opacity-50 disabled:cursor-not-allowed transform hover:scale-[1.02] active:scale-[0.98]"
                     >
-                       Login
-                    </button>}
+                        {isLoading ? (
+                            <div className="flex items-center justify-center gap-3">
+                                <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                Logging to your account...
+                            </div>
+                        ) : (
+                            "Login"
+                        )}</button>
+
+
 
                 </form>
 

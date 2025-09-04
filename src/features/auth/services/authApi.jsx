@@ -25,9 +25,10 @@ export function AuthProvider({ children }) {
 
 
     async function register(name, email, password) {
-
+var role="User";
         try{
-            const res=await API.post("/register",{name,email,password});
+            const res=await API.post("/register",{name,email,password,role});
+            if(res){
             const authData={
                 accessToken: res.data.AccessToken,
                 refreshToken: res.data.RefreshToken,
@@ -47,7 +48,7 @@ export function AuthProvider({ children }) {
                 uid: authData.uid,
                 role: authData.role,
                 loginTime: authData.loginTime,
-            })
+            })}
         }catch(err){
             if (err.response) {
                 console.error("Full error:", err.response.data);

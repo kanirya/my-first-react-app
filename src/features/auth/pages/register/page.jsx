@@ -1,7 +1,8 @@
 "use client"
 
-import { useState } from "react"
-import { Link } from "react-router-dom"
+import React, {useContext, useState} from "react"
+import {Link, useNavigate} from "react-router-dom"
+import {AuthContext} from "../../context/AuthContext.jsx";
 
 const EyeIcon = ({ className }) => (
     <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -71,16 +72,7 @@ const LockIcon = ({ className }) => (
     </svg>
 )
 
-const ShieldIcon = ({ className }) => (
-    <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
-        />
-    </svg>
-)
+
 
 const GoogleIcon = ({ className }) => (
     <svg className={className} viewBox="0 0 24 24">
@@ -150,7 +142,9 @@ export default function Registration() {
     const [showPassword, setShowPassword] = useState(false)
     const [showConfirmPassword, setShowConfirmPassword] = useState(false)
     const [focusedField, setFocusedField] = useState(null)
+    const {register}=useContext(AuthContext)
 
+    const navigate=useNavigate()
     const handleChange = (e) => {
         const { name, value } = e.target
         setForm((prev) => ({ ...prev, [name]: value }))
@@ -230,11 +224,11 @@ export default function Registration() {
 
         try {
             // Simulate API call
-            await new Promise((resolve) => setTimeout(resolve, 2000))
-            console.log("Registration successful:", form)
+           await register(form.name,form.email, form.password)
+            navigate("/dashboard")
             // Handle successful registration
         } catch (err) {
-            setErrors({ general: "Registration failed. Please try again." })
+            setErrors({ general: `Registration failed. Please try again. ${err.message}` })
         } finally {
             setIsLoading(false)
         }
@@ -244,26 +238,19 @@ export default function Registration() {
     const strengthInfo = getStrengthLabel(passwordStrength)
 
     return (
-        <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
-            <div className="w-full max-w-md bg-white rounded-2xl shadow-2xl border border-gray-100 overflow-hidden">
-                {/* Header */}
-                <div className="bg-gradient-to-r from-indigo-600 to-purple-600 px-8 py-6 text-center">
-                    <div className="mx-auto w-16 h-16 bg-white/20 rounded-full flex items-center justify-center mb-4 backdrop-blur-sm">
-                        <ShieldIcon className="w-8 h-8 text-white" />
-                    </div>
-                    <h2 className="text-2xl font-bold text-white mb-2">Create Account</h2>
-                    <p className="text-indigo-100 text-sm">Join thousands of users and get started today</p>
-                </div>
+        <div className="min-h-screen flex items-center justify-center px-4 bg-gray-950">
+            <div className="w-full max-w-sm bg-gray-900 rounded-2xl shadow-xl py-5 ">
+                <h2 className="text-2xl mt-2 font-bold text-white text-center">Create account</h2>
+                <p className="text-gray-400 text-center mb-6 text-sm">
+                    Join thousands of users and get started today
+                </p>
 
                 <div className="px-8 py-6 space-y-6">
                     <form onSubmit={handleSubmit} className="space-y-5">
                         {/* Name Field */}
                         <div className="space-y-2">
-                            <label htmlFor="name" className="block text-sm font-semibold text-gray-700">
-                                Full Name
-                            </label>
+
                             <div className="relative">
-                                <UserIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
                                 <input
                                     id="name"
                                     name="name"
@@ -272,13 +259,14 @@ export default function Registration() {
                                     onChange={handleChange}
                                     onFocus={() => setFocusedField("name")}
                                     onBlur={() => setFocusedField(null)}
-                                    placeholder="Enter your full name"
-                                    className={`w-full pl-11 pr-4 py-3 border-2 rounded-xl transition-all duration-200 focus:outline-none ${
+                                    placeholder="Full Name"
+
+                                    className={`w-full pl-4 pr-4 text-white py-3 bg-gray-800 focus:outline-none focus:ring-1 focus:ring-indigo-500 rounded-xl transition-all duration-200 focus:outline-none ${
                                         errors.name
-                                            ? "border-red-300 focus:border-red-500 focus:ring-4 focus:ring-red-100"
+                                            ? "border-red-500 ring-1  focus:border-red-500 "
                                             : focusedField === "name"
-                                                ? "border-indigo-300 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100"
-                                                : "border-gray-200 hover:border-gray-300"
+                                                ? "border-indigo-300  focus:border-indigo-500  "
+                                                : ""
                                     }`}
                                 />
                             </div>
@@ -292,11 +280,8 @@ export default function Registration() {
 
                         {/* Email Field */}
                         <div className="space-y-2">
-                            <label htmlFor="email" className="block text-sm font-semibold text-gray-700">
-                                Email Address
-                            </label>
+
                             <div className="relative">
-                                <MailIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
                                 <input
                                     id="email"
                                     name="email"
@@ -306,11 +291,11 @@ export default function Registration() {
                                     onFocus={() => setFocusedField("email")}
                                     onBlur={() => setFocusedField(null)}
                                     placeholder="you@example.com"
-                                    className={`w-full pl-11 pr-4 py-3 border-2 rounded-xl transition-all duration-200 focus:outline-none ${
+                                    className={`w-full pl-4 pr-4 text-white py-3 bg-gray-800 focus:outline-none focus:ring-1 focus:ring-indigo-500 rounded-xl transition-all duration-200 focus:outline-none ${
                                         errors.email
-                                            ? "border-red-300 focus:border-red-500 focus:ring-4 focus:ring-red-100"
+                                            ? "border-red-600 ring-1 focus:border-red-500 focus:ring-1 focus:ring-red-100"
                                             : focusedField === "email"
-                                                ? "border-indigo-300 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100"
+                                                ? "border-indigo-300  focus:border-indigo-500 "
                                                 : "border-gray-200 hover:border-gray-300"
                                     }`}
                                 />
@@ -325,11 +310,8 @@ export default function Registration() {
 
                         {/* Password Field */}
                         <div className="space-y-2">
-                            <label htmlFor="password" className="block text-sm font-semibold text-gray-700">
-                                Password
-                            </label>
+
                             <div className="relative">
-                                <LockIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
                                 <input
                                     id="password"
                                     name="password"
@@ -339,11 +321,11 @@ export default function Registration() {
                                     onFocus={() => setFocusedField("password")}
                                     onBlur={() => setFocusedField(null)}
                                     placeholder="Create a strong password"
-                                    className={`w-full pl-11 pr-12 py-3 border-2 rounded-xl transition-all duration-200 focus:outline-none ${
+                                    className={`w-full pl-4 pr-4 text-white py-3 bg-gray-800 focus:outline-none focus:ring-1 focus:ring-indigo-500 rounded-xl transition-all duration-200  ${
                                         errors.password
-                                            ? "border-red-300 focus:border-red-500 focus:ring-4 focus:ring-red-100"
+                                            ? "border-red-500 focus:border-red-500 ring-1 focus:ring-1 focus:ring-red-100"
                                             : focusedField === "password"
-                                                ? "border-indigo-300 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100"
+                                                ? "border-indigo-300  focus:border-indigo-500 "
                                                 : "border-gray-200 hover:border-gray-300"
                                     }`}
                                 />
@@ -357,7 +339,7 @@ export default function Registration() {
                             </div>
 
                             {form.password && (
-                                <div className="space-y-3">
+                                <div className="space-y-3 ">
                                     <div className="flex items-center justify-between">
                                         <span className="text-xs font-medium text-gray-600">Password strength</span>
                                         <span
@@ -386,7 +368,7 @@ export default function Registration() {
                             )}
 
                             {(focusedField === "password" || form.password) && (
-                                <div className="space-y-2 p-4 bg-gray-50 rounded-xl border border-gray-200">
+                                <div className="space-y-2 p-4 bg-gray rounded-xl border border-gray-200">
                                     <p className="text-xs font-semibold text-gray-700 mb-3">Password must contain:</p>
                                     {passwordRules.map((rule) => {
                                         const isValid = rule.test(form.password)
@@ -425,11 +407,8 @@ export default function Registration() {
 
                         {/* Confirm Password Field */}
                         <div className="space-y-2">
-                            <label htmlFor="confirmPassword" className="block text-sm font-semibold text-gray-700">
-                                Confirm Password
-                            </label>
+
                             <div className="relative">
-                                <LockIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
                                 <input
                                     id="confirmPassword"
                                     name="confirmPassword"
@@ -439,13 +418,13 @@ export default function Registration() {
                                     onFocus={() => setFocusedField("confirmPassword")}
                                     onBlur={() => setFocusedField(null)}
                                     placeholder="Confirm your password"
-                                    className={`w-full pl-11 pr-12 py-3 border-2 rounded-xl transition-all duration-200 focus:outline-none ${
+                                    className={`w-full pl-4 pr-4 text-white py-3 bg-gray-800 focus:outline-none focus:ring-1 focus:ring-indigo-500 rounded-xl transition-all duration-200 focus:outline-none ${
                                         errors.confirmPassword
-                                            ? "border-red-300 focus:border-red-500 focus:ring-4 focus:ring-red-100"
+                                            ? "border-red-500 ring-1 border-red focus:border-red-500 focus:ring-1 focus:ring-red-100"
                                             : form.confirmPassword && form.password === form.confirmPassword
                                                 ? "border-green-300 focus:border-green-500 focus:ring-4 focus:ring-green-100"
                                                 : focusedField === "confirmPassword"
-                                                    ? "border-indigo-300 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100"
+                                                    ? "border-indigo-300 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-100"
                                                     : "border-gray-200 hover:border-gray-300"
                                     }`}
                                 />
@@ -475,7 +454,7 @@ export default function Registration() {
 
                         {/* General Error */}
                         {errors.general && (
-                            <div className="p-4 bg-red-50 border border-red-200 rounded-xl">
+                            <div className="p-4 bg-dark-50 border border-red-200 rounded-xl">
                                 <p className="text-sm text-red-700 flex items-center gap-2">
                                     <XIcon className="w-4 h-4" />
                                     {errors.general}
@@ -486,7 +465,7 @@ export default function Registration() {
                         <button
                             type="submit"
                             disabled={isLoading}
-                            className="w-full py-4 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-semibold rounded-xl transition-all duration-200 hover:from-indigo-700 hover:to-purple-700 focus:outline-none focus:ring-4 focus:ring-indigo-200 disabled:opacity-50 disabled:cursor-not-allowed transform hover:scale-[1.02] active:scale-[0.98]"
+                            className="w-full py-2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-semibold rounded-xl transition-all duration-200 hover:from-indigo-700 hover:to-purple-700 focus:outline-none focus:ring-4 focus:ring-indigo-200 disabled:opacity-50 disabled:cursor-not-allowed transform hover:scale-[1.02] active:scale-[0.98]"
                         >
                             {isLoading ? (
                                 <div className="flex items-center justify-center gap-3">
@@ -504,16 +483,18 @@ export default function Registration() {
                             <div className="w-full border-t border-gray-200" />
                         </div>
                         <div className="relative flex justify-center text-sm">
-                            <span className="bg-white px-4 text-gray-500 font-medium">Or continue with</span>
+                            <span className="bg-gray-800 px-4 rounded-lg text-gray-500 font-medium">Or continue with</span>
                         </div>
                     </div>
 
                     <div className="grid grid-cols-2 gap-4">
-                        <button className="flex items-center justify-center gap-3 py-3 px-4 border-2 border-gray-200 rounded-xl font-semibold text-gray-700 hover:bg-gray-50 hover:border-gray-300 transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98]">
+                        <button className="flex items-center justify-center gap-3 py-3 px-4 border-2 border-gray-400 rounded-xl font-semibold text-gray-700
+                         hover:bg-gray-700 hover:border-gray-500 hover:text-white transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98]">
                             <GoogleIcon className="w-5 h-5" />
                             Google
                         </button>
-                        <button className="flex items-center justify-center gap-3 py-3 px-4 border-2 border-gray-200 rounded-xl font-semibold text-gray-700 hover:bg-gray-50 hover:border-gray-300 transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98]">
+                        <button className="flex items-center  justify-center gap-3 py-3 px-4 border-2 border-gray-400 rounded-xl font-semibold text-gray-500
+                         hover:bg-gray-700 hover:border-gray-500 hover:text-white transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98]">
                             <GithubIcon className="w-5 h-5" />
                             GitHub
                         </button>
