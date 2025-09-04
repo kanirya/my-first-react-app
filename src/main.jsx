@@ -17,20 +17,16 @@ const router = createBrowserRouter([
     {
         path: "/",
         element: <Layout />,
-        errorElement: <GlobalErrorPage />, // ✅ here
+        errorElement: <GlobalErrorPage />,
         children: [
             { index: true, element: <Home /> },
             { path: "/contact/:id", element: <Contact /> },
             { path: "/login", element: <LoginPage /> },
             { path: "/register", element: <Registration /> },
             {
-                element: <PrivateRoute />,
-                children: [
-                    { path: "/dashboard", element: <Dashboard /> },
-                ],
-
-
-    },
+                element: <PrivateRoute roles={["Admin"]} />,
+                children: [{ path: "/dashboard", element: <Dashboard /> }],
+            },
         ],
     },
 ]);

@@ -225,7 +225,7 @@ export default function Registration() {
         try {
             // Simulate API call
            await register(form.name,form.email, form.password)
-            navigate("/dashboard")
+            navigate("/")
             // Handle successful registration
         } catch (err) {
             setErrors({ general: `Registration failed. Please try again. ${err.message}` })

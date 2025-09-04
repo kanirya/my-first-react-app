@@ -36,7 +36,7 @@ export default function LoginPage() {
         try {
             setisLoading(true);
             await login(form.email, form.password);
-            navigate("/dashboard");
+            navigate("/");
             setisLoading(false);
         } catch (err) {
             if (err.message.toLowerCase().includes("email")) {
