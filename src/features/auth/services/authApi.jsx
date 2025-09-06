@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react"
-import API from "../api/axios"
+import API, {attachAuthStore} from "../api/axios"
 import { AuthContext } from "../context/AuthContext"
 import Cookies from "js-cookie"
 import { jwtDecode } from "jwt-decode"
@@ -13,16 +13,30 @@ function extractRole(decoded) {
     )
 }
 
+function getAccessTokenExpiry(token) {
+    try {
+        const decoded = jwtDecode(token)
+        return decoded.exp * 1000 // JWT exp is in seconds
+    } catch {
+        return null
+    }
+}
+
 export function AuthProvider({ children }) {
     const [user, setUser] = useState(null)
     const [tokens, setTokens] = useState(null)
     const [loading, setLoading] = useState(true)
 
+    // Initialize from localStorage
     useEffect(() => {
         const init = async () => {
+
             const stored = JSON.parse(localStorage.getItem("authData"))
             if (stored?.accessToken) {
-                try {
+                const now = Date.now()
+                if (stored.accessTokenExpiry <= now) {
+                    await refreshToken()
+                } else {
                     const decoded = jwtDecode(stored.accessToken)
                     const role = extractRole(decoded)
                     setTokens(stored)
@@ -33,15 +47,18 @@ export function AuthProvider({ children }) {
                         role,
                         loginTime: stored.loginTime,
                     })
-                } catch {
-                    setUser(null)
-                    setTokens(null)
                 }
             }
+            attachAuthStore(tokens, refreshToken)
             setLoading(false)
         }
         init()
     }, [])
+
+
+    useEffect(() => {
+        attachAuthStore(tokens, refreshToken)
+    }, [tokens])
 
     async function register(name, email, password) {
         try {
@@ -52,7 +69,8 @@ export function AuthProvider({ children }) {
 
             const authData = {
                 accessToken: res.data.AccessToken,
-                expiresAt: res.data.ExpiresAt,
+                accessTokenExpiry: getAccessTokenExpiry(res.data.AccessToken),
+                refreshTokenExpiry: res.data.ExpiresAt,
                 email: res.data.ReturnUserData.Email,
                 name: res.data.ReturnUserData.Name,
                 loginTime: res.data.ReturnUserData.loginDate,
@@ -92,7 +110,8 @@ export function AuthProvider({ children }) {
 
             const authData = {
                 accessToken: res.data.AccessToken,
-                expiresAt: res.data.ExpiresAt,
+                accessTokenExpiry: getAccessTokenExpiry(res.data.AccessToken),
+                refreshTokenExpiry: res.data.ExpiresAt,
                 email: res.data.ReturnUserData.Email,
                 name: res.data.ReturnUserData.Name,
                 loginTime: res.data.ReturnUserData.loginDate,
@@ -102,7 +121,7 @@ export function AuthProvider({ children }) {
             localStorage.setItem("authData", JSON.stringify(authData))
             Cookies.set("refreshToken", res.data.RefreshToken, {
                 secure: true,
-                sameSite: "strict"
+                sameSite: "strict",
             })
 
             setTokens(authData)
@@ -143,13 +162,14 @@ export function AuthProvider({ children }) {
             const updated = {
                 ...tokens,
                 accessToken: res.data.AccessToken,
-                expiresAt: res.data.ExpiresAt,
+                accessTokenExpiry: getAccessTokenExpiry(res.data.AccessToken),
+                refreshTokenExpiry: res.data.ExpiresAt,
             }
 
             localStorage.setItem("authData", JSON.stringify(updated))
             Cookies.set("refreshToken", res.data.RefreshToken, {
                 secure: true,
-                sameSite: "strict"
+                sameSite: "strict",
             })
 
             setTokens(updated)
@@ -165,9 +185,10 @@ export function AuthProvider({ children }) {
         }
     }
 
+    // Schedule token refresh
     useEffect(() => {
-        if (!tokens?.expiresAt) return
-        const expiry = new Date(tokens.expiresAt).getTime()
+        if (!tokens?.accessTokenExpiry) return
+        const expiry = tokens.accessTokenExpiry
         const now = Date.now()
         const timeout = expiry - now - 60 * 1000
         if (timeout > 0) {
