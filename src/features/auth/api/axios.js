@@ -4,7 +4,7 @@ import { createBrowserHistory } from "history";
 const history = createBrowserHistory();
 
 const API = axios.create({
-    baseURL: "https://localhost:7168/api/Auth",
+    baseURL: "https://localhost:7168/api",
     withCredentials: true,
 });
 

@@ -62,7 +62,7 @@ export function AuthProvider({ children }) {
 
     async function register(name, email, password) {
         try {
-            const res = await API.post("/register", { name, email, password })
+            const res = await API.post("/Auth/register", { name, email, password })
 
             const decoded = jwtDecode(res.data.AccessToken)
             const extractedRole = extractRole(decoded)
@@ -101,9 +101,9 @@ export function AuthProvider({ children }) {
         }
     }
 
-    async function login(email, password) {
+    async  function  login(email, password) {
         try {
-            const res = await API.post("/login", { email, password })
+            const res = await API.post("/Auth/login", { email, password })
 
             const decoded = jwtDecode(res.data.AccessToken)
             const extractedRole = extractRole(decoded)
@@ -132,6 +132,7 @@ export function AuthProvider({ children }) {
                 role: extractedRole,
                 loginTime: authData.loginTime,
             })
+            return authData.uid
         } catch (err) {
             throw new Error(
                 err.response?.data?.error ||
@@ -139,7 +140,9 @@ export function AuthProvider({ children }) {
                 err.response?.data?.detail ||
                 "Invalid credentials"
             )
+
         }
+
     }
 
     function logout() {
@@ -154,7 +157,7 @@ export function AuthProvider({ children }) {
         if (!refreshToken) return logout()
 
         try {
-            const res = await API.post("/refresh", { refreshToken })
+            const res = await API.post("/Auth/refresh", { refreshToken })
 
             const decoded = jwtDecode(res.data.AccessToken)
             const extractedRole = extractRole(decoded)

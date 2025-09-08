@@ -11,6 +11,7 @@ import PrivateRoute from "./PrivateRoute.jsx";
 import Dashboard from "./features/dashboard/dashboard.jsx";
 import {AuthProvider} from "./features/auth/services/authApi.jsx";
 import GlobalErrorPage from "./utils/errorBoundry.jsx";
+import {Profile} from "./features/dashboard/profile/profile.jsx";
 
 
 const router = createBrowserRouter([
@@ -25,8 +26,12 @@ const router = createBrowserRouter([
             { path: "/register", element: <Registration /> },
             {
                 element: <PrivateRoute roles={["Admin"]} />,
-                children: [{ path: "/dashboard", element: <Dashboard /> }],
+                children: [{ path: "/dashboard/:id?", element: <Dashboard /> }],
             },
+            {
+            element: <PrivateRoute  />,
+                children: [{path:"/:id", element: <Profile /> }],
+            }
         ],
     },
 ]);

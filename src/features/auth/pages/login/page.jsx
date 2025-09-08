@@ -35,8 +35,8 @@ export default function LoginPage() {
 
         try {
             setisLoading(true);
-            await login(form.email, form.password);
-            navigate("/");
+         const uid=   await login(form.email, form.password);
+            navigate(`/${uid}`);
             setisLoading(false);
         } catch (err) {
             if (err.message.toLowerCase().includes("email")) {

@@ -26,6 +26,12 @@ export default function Header() {
                             >
                                 Logout
                             </button>
+                            <Link to={`/${user.uid}`}
+
+                                className="bg-light-200 hover:bg-light-100 ml-1 text-black font-medium rounded-lg text-sm px-4 py-2 focus:outline-none"
+                            >
+                                Profile
+                            </Link>
                         </>):(<>   <Link
                             to="/login"
                             className="bg-gray-100 hover:bg-dark-100 text-white focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-4 lg:px-5 py-2 lg:py-2.5 mr-2 focus:outline-none"
